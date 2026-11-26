@@ -19,7 +19,7 @@ back.
   made, so an interrupted recording can be finished rather than lost.
 - Share links that work without an account, optionally behind a password, revocable
   immediately. View and completion counts for the owner.
-- Four storage backends — S3 and compatible, Cloudinary, ImageKit, local disk —
+- Five storage backends — Azure Blob Storage, S3 and compatible, Cloudinary, ImageKit, local disk —
   behind one interface, added and tested from the settings screen, with credentials
   encrypted at rest.
 - ffmpeg normalisation to a faststart H.264/AAC MP4 with a poster frame, doing the

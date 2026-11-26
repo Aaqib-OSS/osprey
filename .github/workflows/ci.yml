@@ -8,6 +8,16 @@ on:
 jobs:
   check:
     runs-on: ubuntu-latest
+    services:
+      azurite:
+        image: mcr.microsoft.com/azure-storage/azurite:3.38.0
+        ports:
+          - 10000:10000
+    env:
+      AZURE_TEST_ACCOUNT_NAME: devstoreaccount1
+      AZURE_TEST_ACCOUNT_KEY: Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==
+      AZURE_TEST_CONTAINER: osprey-conformance
+      AZURE_TEST_ENDPOINT: http://127.0.0.1:10000/devstoreaccount1
     steps:
       - uses: actions/checkout@v7
 
@@ -21,6 +31,16 @@ jobs:
 
       # The processing tests run a real encoder rather than mocking one.
       - run: sudo apt-get update && sudo apt-get install -y ffmpeg
+
+      - name: Wait for Azurite
+        run: |
+          for attempt in {1..30}; do
+            status="$(curl --silent --output /dev/null --max-time 2 --write-out '%{http_code}' http://127.0.0.1:10000/devstoreaccount1?comp=list || true)"
+            if [ "$status" != "000" ]; then exit 0; fi
+            sleep 1
+          done
+          echo 'Azurite did not become reachable.' >&2
+          exit 1
 
       - run: pnpm install --frozen-lockfile
       - run: pnpm lint

@@ -20,7 +20,7 @@ An osprey watches, dives, and comes up holding what it went in for.
   bubble you can drag anywhere on screen mid-recording.
 - **Shares** with a link that works for someone with no account — optionally behind
   a password, revocable immediately.
-- **Stores** wherever you point it: S3, MinIO, Cloudflare R2, Backblaze B2,
+- **Stores** wherever you point it: S3, MinIO, Cloudflare R2, Backblaze B2, Azure Blob Storage,
   Cloudinary, ImageKit, or a directory on disk.
 - **Survives a crash.** Parts are written to the browser's own file system as they
   are made, so a browser that dies mid-recording offers to finish the upload rather
@@ -58,7 +58,7 @@ what to change before putting it on a network.
 |---|---|
 | [Installation](docs/installation.md) | Docker, from source, upgrading, going to production |
 | [Configuration](docs/configuration.md) | Every environment variable and what it does |
-| [Storage](docs/storage.md) | The four backends, what each actually supports, adding your own |
+| [Storage](docs/storage.md) | The five backends, what each actually supports, adding your own |
 | [Architecture](docs/architecture.md) | How recording, processing and playback fit together |
 | [HTTP API](docs/api.md) | The endpoints |
 | [Roadmap](ROADMAP.md) | What is likely next, and what is deliberately not planned |

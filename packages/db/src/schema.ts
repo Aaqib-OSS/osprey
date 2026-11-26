@@ -24,6 +24,7 @@ export const connectorKind = pgEnum('connector_kind', [
   'cloudinary',
   'imagekit',
   'gdrive',
+  'azure',
 ]);
 export const recordingState = pgEnum('recording_state', [
   'draft',

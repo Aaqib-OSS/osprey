@@ -53,6 +53,17 @@ const BACKENDS = {
       { name: 'secretAccessKey', label: 'Secret access key', required: true },
     ],
   },
+  azure: {
+    label: 'Azure Blob Storage',
+    note: 'Private Azure container. Uploads are staged locally, then published as block blobs.',
+    config: [
+      { name: 'accountName', label: 'Storage account name', placeholder: 'mystorageaccount', required: true },
+      { name: 'container', label: 'Container', placeholder: 'osprey-recordings', required: true },
+      { name: 'endpoint', label: 'Blob endpoint', placeholder: 'https://mystorageaccount.blob.core.windows.net', hint: 'Optional; only change for a custom Azure-compatible endpoint.', required: false },
+      { name: 'publicEndpoint', label: 'Endpoint browsers use', placeholder: 'https://mystorageaccount.blob.core.windows.net', hint: 'Only if browsers reach the same storage account at a different address.', required: false },
+    ],
+    secret: [{ name: 'accountKey', label: 'Storage account key (base64)', required: true }],
+  },
   cloudinary: {
     label: 'Cloudinary',
     note: 'Handles transcoding and adaptive streaming itself. Uploads are staged here first.',

@@ -65,7 +65,7 @@ apps/api            Fastify HTTP API
 apps/web            React client: record, library, playback, settings
 apps/worker         ffmpeg normalisation, and sweeping up afterwards
 packages/db         Drizzle schema, migrations, database client
-packages/storage    StorageConnector, the four backends, conformance suite
+packages/storage    StorageConnector, the five backends, conformance suite
 packages/recorder   capture core: coalescer, scheduler, retry, spill, state machine
 packages/processing ffprobe, the encode plan, ffmpeg argument builders
 packages/jobs       job names and queue setup, shared by API and worker

@@ -67,7 +67,7 @@ those into 8 MiB parts; `scheduler.ts` uploads four at a time *during* recording
 stopping only flushes the tail. Parts are spilled to OPFS as they are made, which is
 what lets an interrupted recording be finished rather than lost.
 
-**`packages/storage`** is one `StorageConnector` interface over four backends. The
+**`packages/storage`** is one `StorageConnector` interface over five backends. The
 important file is `conformance.ts`: a shared suite every backend must pass, which
 checks declared capabilities against measured behaviour. Two of its cases exist
 because of shipped bugs — it rebuilds the connector between calls (the API makes one

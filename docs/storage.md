@@ -1,6 +1,6 @@
 # Storage
 
-Recordings go to storage you control. Four backends ship, they are added through
+Recordings go to storage you control. Five backends ship, they are added through
 **Settings** in the running application, and every one of them is tested — written
 to, read back, deleted — before it is saved. A backend that cannot be written to is
 rejected there rather than in the middle of somebody's recording.
@@ -39,6 +39,22 @@ time.
 
 This is the only backend a browser uploads to directly.
 
+### Azure Blob Storage
+
+| Field | Example |
+|---|---|
+| Storage account name | `mystorageaccount` (3–24 lowercase letters or digits) |
+| Container | `osprey-recordings` |
+| Blob endpoint | `https://mystorageaccount.blob.core.windows.net` (optional) |
+| Endpoint browsers use | only when browsers reach the account at a different address (optional) |
+| Storage account key | Base64 account key from Azure |
+
+The server publishes completed uploads as block blobs. The API and worker must
+share the staging directory; multiple API instances need the same shared path.
+Playback uses short-lived, read-only SAS URLs. When the browser-facing endpoint
+differs from the server endpoint, set **Endpoint browsers use** so SAS URLs point
+to an address the browser can reach.
+
 ### Cloudinary
 
 | Field | Example |
@@ -61,21 +77,23 @@ This is the only backend a browser uploads to directly.
 Declared capabilities are checked against measured behaviour by a shared conformance
 suite, so this table is what the providers do rather than what they claim.
 
-| | S3/MinIO | Cloudinary | ImageKit | Local disk |
-|---|---|---|---|---|
-| Browser uploads directly | yes | no, staged | no, staged | no |
-| Multipart, parallel | yes, native | yes, into staging | yes, into staging | yes |
-| Resumable | yes | yes | yes | yes |
-| Signed reads | yes | yes | yes | yes |
-| Byte ranges | yes | yes | yes | yes |
-| Immediately consistent | yes | yes | **no** | yes |
-| Returns the exact bytes given | yes | yes | **only with `orig-true`** | yes |
-| Accepts non-media bytes | yes | **no** | serves them oddly | yes |
-| Transcodes for you | no | yes | yes, on the fly | no |
-| Adaptive streaming | no | HLS + DASH | HLS + DASH | no |
-| Smallest part | 5 MiB | 1 byte | 1 byte | 1 byte |
+| | S3/MinIO | Azure Blob | Cloudinary | ImageKit | Local disk |
+|---|---|---|---|---|---|
+| Browser uploads directly | yes | no, staged | no, staged | no, staged | no |
+| Multipart, parallel | yes, native | yes, into staging | yes, into staging | yes, into staging | yes |
+| Resumable | yes | yes | yes | yes | yes |
+| Signed reads | yes | yes | yes | yes | yes |
+| Byte ranges | yes | yes | yes | yes | yes |
+| Immediately consistent | yes | yes | yes | **no** | yes |
+| Returns the exact bytes given | yes | yes | yes | **only with `orig-true`** | yes |
+| Accepts non-media bytes | yes | yes | **no** | serves them oddly | yes |
+| Transcodes for you | no | no | yes | yes, on the fly | no |
+| Adaptive streaming | no | no | HLS + DASH | HLS + DASH | no |
+| Smallest part | 5 MiB | 1 byte | 1 byte | 1 byte | 1 byte |
 
-Three of those are worth saying in words, because each one cost a bug:
+The provider-specific details worth calling out are:
+
+**Azure Blob Storage uses staged block-blob uploads.** Parts are assembled on the server, then uploaded in batches of up to four 8 MiB blocks. The 50,000-block limit caps an object at about 419 GB (391 GiB). Account keys stay in the encrypted secret field, and playback links use read-only, time-limited SAS tokens.
 
 **Cloudinary rejects non-media uploads outright.** The connection test and the
 conformance suite both have to send real video to it, not random bytes.
@@ -84,11 +102,7 @@ conformance suite both have to send real video to it, not random bytes.
 uploaded. Reads add `?tr=orig-true` to get the original back. Its index is also
 eventually consistent, so `stat` goes through an HTTP HEAD and deletes retry.
 
-**Cloudinary and ImageKit are whole-file providers**, so uploads are staged locally
-and published as one object when complete. The staging directory is shared and
-fixed, because the parts of a single upload arrive across several requests and each
-request builds its own connector. Running more than one API process needs that
-directory on shared storage.
+**Azure Blob Storage, Cloudinary and ImageKit all use the shared staging directory.** Azure publishes the assembled file as blocks; Cloudinary and ImageKit publish it as one object. The directory is fixed because parts arrive across separate requests and each request builds its own connector. Running more than one API process requires that directory on shared storage.
 
 ## Adding a backend
 
